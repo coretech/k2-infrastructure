@@ -27,8 +27,8 @@ func NewBrandMediaKitStack(scope constructs.Construct, envPrefix string, props *
 	stack := awscdk.NewStack(scope, jsii.String(fmt.Sprintf(stackID, envPrefix)), &sprops)
 
 	// S3 bucket for WordPress instances to store media and assets.
-	awss3.NewBucket(stack, jsii.String(stackID), &awss3.BucketProps{
-		BucketName:    jsii.String(s3BucketName),
+	awss3.NewBucket(stack, jsii.String(fmt.Sprintf(stackID, envPrefix)), &awss3.BucketProps{
+		BucketName:    jsii.String(fmt.Sprintf(stackID, envPrefix)),
 		RemovalPolicy: awscdk.RemovalPolicy_DESTROY,
 		Versioned:     jsii.Bool(true),
 	})
