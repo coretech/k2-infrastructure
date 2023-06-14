@@ -20,12 +20,23 @@ The `cdk.json` file tells the CDK toolkit how to execute your app.
 Stack naming conventions:
 * Stack name for dev environment must follow the pattern `k2-dev*`
 * Stack name for prod environment must follow the pattern `k2-prod*`
-> Before deploying, make sure K2_ENV_NAME variable is set to any of "k2-dev" or "k2-prod"
+> Before deploying, make sure K2_ENV_NAME variable is set to any of "k2-dev" or "k2-prod".
+> If no such variable is set, it'll be assumed resources are going to be deployed to dev environment.
 
 To set AWS profile variable on Windows, run powershell command:
 ```
 $Env:AWS_PROFILE='k2-prod'
 $Env:AWS_PROFILE='k2-dev'
+```
+
+If there is more than one stack, each stack should be specified:
+```
+cdk deploy {stackName1} {stackName2}...
+``` 
+
+To deploy all stacks at once, this command should be used:
+```
+cdk deploy --all
 ```
 
 To update only one stack without dependencies:

@@ -1,23 +1,33 @@
 package main
 
 import (
+	"cdk/config"
 	"cdk/stacks"
 	"github.com/aws/aws-cdk-go/awscdk/v2"
-	"os"
-
 	"github.com/aws/jsii-runtime-go"
+	"os"
 )
 
 func main() {
 	defer jsii.Close()
 
 	app := awscdk.NewApp(nil)
-	environment := os.Getenv("K2_ENV_NAME")
+	environment := config.Parse(os.Getenv("K2_ENV_NAME"))
 
-	stacks.NewBrandMediaKitStack(app, environment, &stacks.BrandMediaKitStackProps{
-		awscdk.StackProps{
-			Env: env(),
+	stacks.NewVPCStack(app, &stacks.VPCStackProps{
+		StackProps: awscdk.StackProps{
+			Tags: environment.GetTags(),
+			Env:  env(),
 		},
+		Environment: environment,
+	})
+
+	stacks.NewBrandMediaKitStack(app, &stacks.BrandMediaKitStackProps{
+		StackProps: awscdk.StackProps{
+			Tags: environment.GetTags(),
+			Env:  env(),
+		},
+		Environment: environment,
 	})
 
 	app.Synth(nil)
