@@ -3,6 +3,7 @@ package stacks
 import (
 	"cdk/config"
 	"fmt"
+
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsec2"
 	"github.com/aws/constructs-go/constructs/v10"
@@ -20,8 +21,8 @@ type VPCStackProps struct {
 	config.Environment
 }
 
-// MTUOAM Dev allocated CIDR: 10.130.136.0/23 Ref: https://idtjira.atlassian.net/browse/NAT-4291
-// MTUOAM Prod allocated CIDR: 10.200.46.0/23 Ref: https://idtjira.atlassian.net/browse/NAT-4292
+// MTUOAM Dev allocated CIDR: 10.130.144.0/21 Ref: https://idtjira.atlassian.net/browse/NAT-4322
+// MTUOAM Prod allocated CIDR: 10.200.64.0/21 Ref: https://idtjira.atlassian.net/browse/NAT-4323
 // https://docs.netgate.com/pfsense/en/latest/network/cidr.html
 func NewVPCStack(scope constructs.Construct, props *VPCStackProps) awscdk.Stack {
 	var sprops awscdk.StackProps
@@ -35,12 +36,12 @@ func NewVPCStack(scope constructs.Construct, props *VPCStackProps) awscdk.Stack 
 	subnetConfigurations = append(
 		subnetConfigurations,
 		&awsec2.SubnetConfiguration{
-			CidrMask:   jsii.Number[int](25),
+			CidrMask:   jsii.Number[int](24),
 			Name:       jsii.String(defaultApplicationSubnetGroupName),
 			SubnetType: awsec2.SubnetType_PRIVATE_WITH_EGRESS,
 		},
 		&awsec2.SubnetConfiguration{
-			CidrMask:   jsii.Number[int](27),
+			CidrMask:   jsii.Number[int](26),
 			Name:       jsii.String(publicSubnetGroupName),
 			SubnetType: awsec2.SubnetType_PUBLIC,
 		},
