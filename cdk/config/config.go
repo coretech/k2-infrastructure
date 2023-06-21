@@ -14,15 +14,19 @@ const (
 )
 
 const (
-	devAccount       = "041584911022"
-	devRegion        = "us-east-1"
-	devAllocatedCIDR = "10.130.144.0/21"
+	devAccount                               = "041584911022"
+	devRegion                                = "us-east-1"
+	devAllocatedCIDR                         = "10.130.144.0/21"
+	devBrandMediaKitCloudFrontCertificateARN = "arn:aws:acm:us-east-1:041584911022:certificate/4f213c01-440d-4563-85e5-cf141248e849"
+	devBrandMediaKitDomainName               = "dev.brand-media-kit.idt.net"
 )
 
 const (
-	prodAccount       = "133360657404"
-	prodRegion        = "us-east-1"
-	prodAllocatedCIDR = "10.200.64.0/21"
+	prodAccount                               = "133360657404"
+	prodRegion                                = "us-east-1"
+	prodAllocatedCIDR                         = "10.200.64.0/21"
+	prodBrandMediaKitCloudFrontCertificateARN = "arn:aws:acm:us-east-1:133360657404:certificate/8b482f77-3907-43b1-980f-c4e4e544bf9d"
+	prodBrandMediaKitDomainName               = "prod.brand-media-kit.idt.net"
 )
 
 // Parse parses the environment to deploy infrastructure to from K2_ENV_NAME environment variable.
@@ -93,6 +97,31 @@ func (e Environment) GetAllocatedCIDR() *string {
 		return jsii.String(devAllocatedCIDR)
 	case prodEnvironment:
 		return jsii.String(prodAllocatedCIDR)
+	default:
+		return nil
+	}
+}
+
+func (e Environment) GetBrandMediaKitCloudFrontCertificateARN() *string {
+	switch e {
+	case devEnvironment:
+		return jsii.String(devBrandMediaKitCloudFrontCertificateARN)
+	case prodEnvironment:
+		return jsii.String(prodBrandMediaKitCloudFrontCertificateARN)
+	default:
+		return nil
+	}
+}
+
+func (e Environment) GetBrandMediaKitDomainNames() *[]*string {
+	domainNames := make([]*string, 0)
+	switch e {
+	case devEnvironment:
+		domainNames = append(domainNames, jsii.String(devBrandMediaKitDomainName))
+		return &domainNames
+	case prodEnvironment:
+		domainNames = append(domainNames, jsii.String(prodBrandMediaKitDomainName))
+		return &domainNames
 	default:
 		return nil
 	}

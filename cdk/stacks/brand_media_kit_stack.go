@@ -4,6 +4,8 @@ import (
 	"cdk/config"
 	"fmt"
 
+	"github.com/aws/aws-cdk-go/awscdk/v2/awscertificatemanager"
+
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awscloudfront"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awscloudfrontorigins"
@@ -45,6 +47,9 @@ func NewBrandMediaKitStack(scope constructs.Construct, props *BrandMediaKitStack
 		Comment: jsii.String("Origin Access Identity used for accessing S3 by CloudFront distribution"),
 	})
 
+	certificateARN := props.Environment.GetBrandMediaKitCloudFrontCertificateARN()
+	certificate := awscertificatemanager.Certificate_FromCertificateArn(stack, jsii.String("brand-media-kit-certificate"), certificateARN)
+
 	awscloudfront.NewDistribution(stack, jsii.String(cloudFrontDistributionName), &awscloudfront.DistributionProps{
 		DefaultBehavior: &awscloudfront.BehaviorOptions{
 			Origin: awscloudfrontorigins.NewS3Origin(originBucket, &awscloudfrontorigins.S3OriginProps{
@@ -53,10 +58,10 @@ func NewBrandMediaKitStack(scope constructs.Construct, props *BrandMediaKitStack
 				OriginAccessIdentity: originAccessIdentity,
 			}),
 		},
-		Certificate:       nil,
+		Certificate:       certificate,
 		Comment:           jsii.String("CloudFront Distribution for Brand Media Kit"),
 		DefaultRootObject: nil,
-		DomainNames:       nil,
+		DomainNames:       props.Environment.GetBrandMediaKitDomainNames(),
 		Enabled:           jsii.Bool(true),
 		EnableIpv6:        nil,
 		EnableLogging:     jsii.Bool(true),
