@@ -47,13 +47,53 @@ func NewVPCStack(scope constructs.Construct, props *VPCStackProps) awscdk.Stack 
 		},
 	)
 
-	// Define the VPC
-	awsec2.NewVpc(stack, jsii.String("default"), &awsec2.VpcProps{
+	// Define the VPC.
+	vpc := awsec2.NewVpc(stack, jsii.String("default"), &awsec2.VpcProps{
 		IpAddresses:         awsec2.IpAddresses_Cidr(props.Environment.GetAllocatedCIDR()),
 		MaxAzs:              jsii.Number[int](3),
 		NatGateways:         jsii.Number[int](3),
 		SubnetConfiguration: &subnetConfigurations,
 	})
+
+	domainNameServers := []*string{
+		jsii.String("10.250.20.149"),
+		jsii.String("10.250.21.172"),
+		jsii.String("10.250.22.62"),
+	}
+
+	ntpServers := []*string{
+		jsii.String("169.254.169.123"),
+	}
+
+	dhcp := awsec2.NewCfnDHCPOptions(stack, jsii.String("dhcp"), &awsec2.CfnDHCPOptionsProps{
+		DomainName:        jsii.String("idt.net"),
+		DomainNameServers: &domainNameServers,
+		NtpServers:        &ntpServers,
+	})
+
+	awsec2.NewCfnVPCDHCPOptionsAssociation(stack, jsii.String("dhcp-association"), &awsec2.CfnVPCDHCPOptionsAssociationProps{
+		DhcpOptionsId: dhcp.Ref(),
+		VpcId:         vpc.VpcId(),
+	})
+
+	privateSubnetsIDs := make([]*string, 0)
+	for _, subnet := range *vpc.PrivateSubnets() {
+		privateSubnetsIDs = append(privateSubnetsIDs, subnet.SubnetId())
+	}
+
+	// Each private subnet's traffic should go through the transit gateway.
+	for _, subnet := range *vpc.PrivateSubnets() {
+		awsec2.NewCfnRoute(stack, jsii.String(fmt.Sprintf("tgwroute%s", *subnet.Node().Id())), &awsec2.CfnRouteProps{
+			DestinationCidrBlock: jsii.String(config.IDTNetworkCIDR),
+			RouteTableId:         subnet.RouteTable().RouteTableId(),
+			TransitGatewayId:     props.GetTransitGatewayID(),
+		})
+		awsec2.NewCfnRoute(stack, jsii.String(fmt.Sprintf("tgwvpnroute%s", *subnet.Node().Id())), &awsec2.CfnRouteProps{
+			DestinationCidrBlock: jsii.String(config.VpnClientsCIDR),
+			RouteTableId:         subnet.RouteTable().RouteTableId(),
+			TransitGatewayId:     props.GetTransitGatewayID(),
+		})
+	}
 
 	return stack
 }

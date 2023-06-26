@@ -1,17 +1,18 @@
 package stacks
 
 import (
+	"testing"
+
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awss3"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestBrandMediaKitStackCreation(t *testing.T) {
 	app := awscdk.NewApp(nil)
 	// Create a testing stack with a mocked Construct scope
-	stack := NewBrandMediaKitStack(app, "test", &BrandMediaKitStackProps{
+	stack := NewBrandMediaKitStack(app, &BrandMediaKitStackProps{
 		StackProps: awscdk.StackProps{
 			Env: &awscdk.Environment{
 				Region: jsii.String("us-east-1"),

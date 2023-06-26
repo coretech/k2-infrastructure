@@ -14,19 +14,28 @@ const (
 )
 
 const (
+	IDTNetworkCIDR = "10.0.0.0/8"
+	VpnClientsCIDR = "169.132.0.0/16"
+)
+
+// dev related configurations.
+const (
 	devAccount                               = "041584911022"
 	devRegion                                = "us-east-1"
 	devAllocatedCIDR                         = "10.130.144.0/21"
 	devBrandMediaKitCloudFrontCertificateARN = "arn:aws:acm:us-east-1:041584911022:certificate/4f213c01-440d-4563-85e5-cf141248e849"
 	devBrandMediaKitDomainName               = "dev.brand-media-kit.idt.net"
+	devTransitGatewayID                      = "tgw-036d427287661ff13"
 )
 
+// prod related configurations.
 const (
 	prodAccount                               = "133360657404"
 	prodRegion                                = "us-east-1"
 	prodAllocatedCIDR                         = "10.200.64.0/21"
 	prodBrandMediaKitCloudFrontCertificateARN = "arn:aws:acm:us-east-1:133360657404:certificate/8b482f77-3907-43b1-980f-c4e4e544bf9d"
 	prodBrandMediaKitDomainName               = "prod.brand-media-kit.idt.net"
+	prodTransitGatewayID                      = "tgw-046866a4b96cbede2"
 )
 
 // Parse parses the environment to deploy infrastructure to from K2_ENV_NAME environment variable.
@@ -102,6 +111,19 @@ func (e Environment) GetAllocatedCIDR() *string {
 	}
 }
 
+// GetTransitGatewayID fetches Transit Gateway ID (Transit Gateways are provisioned by NETENG).
+// Transit Gateway for MTUOAM Prod - https://idtjira.atlassian.net/browse/NETENG-6239.
+func (e Environment) GetTransitGatewayID() *string {
+	switch e {
+	case devEnvironment:
+		return jsii.String(devTransitGatewayID)
+	case prodEnvironment:
+		return jsii.String(prodTransitGatewayID)
+	default:
+		return nil
+	}
+}
+
 func (e Environment) GetBrandMediaKitCloudFrontCertificateARN() *string {
 	switch e {
 	case devEnvironment:
@@ -113,6 +135,8 @@ func (e Environment) GetBrandMediaKitCloudFrontCertificateARN() *string {
 	}
 }
 
+// DNS records are being handled in IDT Prod account - https://idtjira.atlassian.net/browse/SYS-21972.
+// For certificates - go to AWS Certificate Manager (ACM).
 func (e Environment) GetBrandMediaKitDomainNames() *[]*string {
 	domainNames := make([]*string, 0)
 	switch e {
