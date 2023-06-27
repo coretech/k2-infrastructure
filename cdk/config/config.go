@@ -3,6 +3,10 @@ package config
 import (
 	"strings"
 
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsec2"
+
+	"github.com/aws/aws-cdk-go/awscdk/v2/awseks"
+
 	"github.com/aws/jsii-runtime-go"
 )
 
@@ -146,6 +150,37 @@ func (e Environment) GetBrandMediaKitDomainNames() *[]*string {
 	case prodEnvironment:
 		domainNames = append(domainNames, jsii.String(prodBrandMediaKitDomainName))
 		return &domainNames
+	default:
+		return nil
+	}
+}
+
+func (e Environment) GetGenericNodeGroupOptionsForEKS() *awseks.NodegroupOptions {
+	instanceTypes := make([]awsec2.InstanceType, 0)
+	labels := map[string]*string{
+		"node_group":    jsii.String("system"),
+		"workload":      jsii.String("generic"),
+		"ingress":       jsii.String("traefik"),
+		"services_type": jsii.String("stateless"),
+	}
+
+	switch e {
+	case devEnvironment:
+		instanceTypes = append(instanceTypes, awsec2.NewInstanceType(jsii.String("m5.large")))
+		return &awseks.NodegroupOptions{
+			DesiredSize:   jsii.Number[float64](2),
+			InstanceTypes: &instanceTypes,
+			Labels:        &labels,
+			MaxSize:       jsii.Number[float64](2),
+		}
+	case prodEnvironment:
+		instanceTypes = append(instanceTypes, awsec2.NewInstanceType(jsii.String("m5.xlarge")))
+		return &awseks.NodegroupOptions{
+			DesiredSize:   jsii.Number[float64](2),
+			InstanceTypes: &instanceTypes,
+			Labels:        &labels,
+			MaxSize:       jsii.Number[float64](10),
+		}
 	default:
 		return nil
 	}

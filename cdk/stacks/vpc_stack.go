@@ -21,10 +21,15 @@ type VPCStackProps struct {
 	config.Environment
 }
 
+type VPCStack struct {
+	awscdk.Stack
+	awsec2.Vpc
+}
+
 // MTUOAM Dev allocated CIDR: 10.130.144.0/21 Ref: https://idtjira.atlassian.net/browse/NAT-4322
 // MTUOAM Prod allocated CIDR: 10.200.64.0/21 Ref: https://idtjira.atlassian.net/browse/NAT-4323
 // https://docs.netgate.com/pfsense/en/latest/network/cidr.html
-func NewVPCStack(scope constructs.Construct, props *VPCStackProps) awscdk.Stack {
+func NewVPCStack(scope constructs.Construct, props *VPCStackProps) *VPCStack {
 	var sprops awscdk.StackProps
 	if props != nil {
 		sprops = props.StackProps
@@ -95,5 +100,8 @@ func NewVPCStack(scope constructs.Construct, props *VPCStackProps) awscdk.Stack 
 		})
 	}
 
-	return stack
+	return &VPCStack{
+		Stack: stack,
+		Vpc:   vpc,
+	}
 }
