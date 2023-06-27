@@ -3,9 +3,10 @@ package main
 import (
 	"cdk/config"
 	"cdk/stacks"
+	"os"
+
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/jsii-runtime-go"
-	"os"
 )
 
 func main() {
@@ -14,18 +15,27 @@ func main() {
 	app := awscdk.NewApp(nil)
 	environment := config.Parse(os.Getenv("K2_ENV_NAME"))
 
-	stacks.NewVPCStack(app, &stacks.VPCStackProps{
+	vpcStack := stacks.NewVPCStack(app, &stacks.VPCStackProps{
 		StackProps: awscdk.StackProps{
-			Tags: environment.GetTags(),
 			Env:  env(),
+			Tags: environment.GetTags(),
 		},
 		Environment: environment,
 	})
 
+	stacks.NewEKSStack(app, &stacks.EKSStackProps{
+		StackProps: awscdk.StackProps{
+			Env:  env(),
+			Tags: environment.GetTags(),
+		},
+		Environment: environment,
+		Vpc:         vpcStack.Vpc,
+	})
+
 	stacks.NewBrandMediaKitStack(app, &stacks.BrandMediaKitStackProps{
 		StackProps: awscdk.StackProps{
-			Tags: environment.GetTags(),
 			Env:  env(),
+			Tags: environment.GetTags(),
 		},
 		Environment: environment,
 	})
