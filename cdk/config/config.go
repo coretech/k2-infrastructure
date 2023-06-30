@@ -158,15 +158,16 @@ func (e Environment) GetBrandMediaKitDomainNames() *[]*string {
 func (e Environment) GetGenericNodeGroupOptionsForEKS() *awseks.NodegroupOptions {
 	instanceTypes := make([]awsec2.InstanceType, 0)
 	labels := map[string]*string{
-		"node_group":    jsii.String("system"),
-		"workload":      jsii.String("generic"),
-		"ingress":       jsii.String("traefik"),
-		"services_type": jsii.String("stateless"),
+		"workload": jsii.String("generic"),
+		"ingress":  jsii.String("traefik"),
 	}
 
 	switch e {
 	case devEnvironment:
 		instanceTypes = append(instanceTypes, awsec2.NewInstanceType(jsii.String("m5.large")))
+		labels["node_group"] = jsii.String("system")
+		labels["services_type"] = jsii.String("stateless")
+
 		return &awseks.NodegroupOptions{
 			DesiredSize:   jsii.Number[float64](2),
 			InstanceTypes: &instanceTypes,
@@ -175,6 +176,8 @@ func (e Environment) GetGenericNodeGroupOptionsForEKS() *awseks.NodegroupOptions
 		}
 	case prodEnvironment:
 		instanceTypes = append(instanceTypes, awsec2.NewInstanceType(jsii.String("m5.xlarge")))
+		labels["node_group"] = jsii.String("generic")
+
 		return &awseks.NodegroupOptions{
 			DesiredSize:   jsii.Number[float64](2),
 			InstanceTypes: &instanceTypes,
