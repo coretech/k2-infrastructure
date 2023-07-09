@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: simpleserver
+  labels:
+    name: simpleserver
+spec:
+  selector:
+    app: simpleserver
+    app.kubernetes.io/name: simpleserver
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort
