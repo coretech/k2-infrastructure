@@ -35,12 +35,22 @@ func NewEKSStack(scope constructs.Construct, props *EKSStackProps) awscdk.Stack 
 	stack := awscdk.NewStack(scope, jsii.String(fmt.Sprintf(eksStackID, *props.Environment.GetName())), &sprops)
 	vpcSubnets := []*awsec2.SubnetSelection{{SubnetGroupName: jsii.String(defaultApplicationSubnetGroupName)}}
 
+	eksMasterRole := awsiam.NewRole(stack, jsii.String("EksMasterRole"), &awsiam.RoleProps{
+		AssumedBy: awsiam.NewServicePrincipal(jsii.String("eks.amazonaws.com"), nil),
+	})
+
+	// Attach policies to the role
+	eksMasterRole.AddManagedPolicy(awsiam.ManagedPolicy_FromAwsManagedPolicyName(jsii.String("AmazonEKSClusterPolicy")))
+	eksMasterRole.AddManagedPolicy(awsiam.ManagedPolicy_FromAwsManagedPolicyName(jsii.String("AmazonEKSServicePolicy")))
+
 	// Define the EKS cluster
 	cluster := awseks.NewCluster(stack, jsii.String("eks"), &awseks.ClusterProps{
-		Version:     awseks.KubernetesVersion_V1_26(),
-		ClusterName: jsii.String(fmt.Sprintf(eksStackID, *props.Environment.GetName())),
-		Vpc:         props.Vpc,
-		VpcSubnets:  &vpcSubnets,
+		Version:             awseks.KubernetesVersion_V1_26(),
+		ClusterName:         jsii.String(fmt.Sprintf(eksStackID, *props.Environment.GetName())),
+		MastersRole:         eksMasterRole,
+		OutputConfigCommand: jsii.Bool(true),
+		Vpc:                 props.Vpc,
+		VpcSubnets:          &vpcSubnets,
 		AlbController: &awseks.AlbControllerOptions{
 			Version: awseks.AlbControllerVersion_V2_5_1(),
 		},
@@ -48,11 +58,16 @@ func NewEKSStack(scope constructs.Construct, props *EKSStackProps) awscdk.Stack 
 		DefaultCapacity: jsii.Number[float64](0),
 	})
 
-	//awscdk.NewCfnOutput(scope, jsii.String("ClusterSecurityGroup"), &awscdk.CfnOutputProps{
-	//	Value:       cluster.ClusterSecurityGroupId(),
-	//	Description: jsii.String("security group for the cluster"),
-	//	ExportName:  jsii.String("security-group"),
-	//})
+	awscdk.NewCfnOutput(stack, jsii.String("KubeconfigOutput"), &awscdk.CfnOutputProps{
+		Value:       cluster.ClusterEndpoint(),
+		Description: jsii.String("EKS Cluster Endpoint"),
+	})
+
+	awscdk.NewCfnOutput(stack, jsii.String("ClusterSecurityGroup"), &awscdk.CfnOutputProps{
+		Value:       cluster.ClusterSecurityGroupId(),
+		Description: jsii.String("security group for the cluster"),
+		ExportName:  jsii.String("security-group"),
+	})
 
 	// Route 53 permissions (external DNS)
 	policyStatements := []awsiam.PolicyStatement{

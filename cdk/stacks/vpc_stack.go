@@ -86,7 +86,13 @@ func NewVPCStack(scope constructs.Construct, props *VPCStackProps) *VPCStack {
 		privateSubnetsIDs = append(privateSubnetsIDs, subnet.SubnetId())
 	}
 
-	// Each private subnet's traffic should go through the transit gateway.
+	// Each IDT and VPN related traffic for private subnets should go through the transit gateway.
+	//
+	// NOTE: deployment for this routing changes won't work until the transit gateway
+	// is manually attached to the VPC since AWS is unable to find a transit gateway
+	// provisioned by other AWS account.
+	//
+	// Please make sure transit gateway is attached to the VPC before proceeding with the deployment.
 	for _, subnet := range *vpc.PrivateSubnets() {
 		awsec2.NewCfnRoute(stack, jsii.String(fmt.Sprintf("tgwroute%s", *subnet.Node().Id())), &awsec2.CfnRouteProps{
 			DestinationCidrBlock: jsii.String(config.IDTNetworkCIDR),
