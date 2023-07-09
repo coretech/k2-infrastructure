@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: simpleserver
+  name: wordpress
   labels:
-    name: simpleserver
+    name: wordpress
 spec:
   selector:
-    app: simpleserver
-    app.kubernetes.io/name: simpleserver
+    app: wordpress
+    app.kubernetes.io/name: wordpress
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080
+      targetPort: 80
   type: NodePort

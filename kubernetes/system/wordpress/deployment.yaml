@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simpleserver
+  name: wordpress
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: simpleserver
-      app.kubernetes.io/name: simpleserver
+      app: wordpress
+      app.kubernetes.io/name: wordpress
   template:
     metadata:
       labels:
-        app: simpleserver
-        app.kubernetes.io/name: simpleserver
+        app: wordpress
+        app.kubernetes.io/name: wordpress
     spec:
       containers:
-        - name: simpleserver
-          image: cold/simpleserver:latest
+        - name: wordpress
+          image: wordpress:latest
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           env:
             - name: WORDPRESS_DB_HOST
-              value: brand-media-kitqa.cttbr9nhjjj8.us-east-1.rds.amazonaws.com
+              value: brand-media-kitqa.cttbr9nhjjj8.us-east-1.rds.amazonaws.com:3306
             - name: WORDPRESS_DB_USER
               value: wp_admin
             - name: WORDPRESS_DB_PASSWORD

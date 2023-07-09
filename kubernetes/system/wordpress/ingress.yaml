@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: simpleserver-ingress
+  name: wordpress-ingress
   annotations:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
@@ -10,16 +10,16 @@ metadata:
 #    alb.ingress.kubernetes.io/group.order: "1"
 #    alb.ingress.kubernetes.io/healthcheck-path: /helloworld
   labels:
-    app.kubernetes.io/name: simpleserver
+    app.kubernetes.io/name: wordpress
 spec:
   rules:
     - host: k2-dev.admin.brand-media-kit.idt.net
       http:
         paths:
-          - path: /helloworld
+          - path: /
             pathType: Prefix
             backend:
               service:
-                name: simpleserver
+                name: wordpress
                 port:
-                  number: 8080
+                  number: 80
