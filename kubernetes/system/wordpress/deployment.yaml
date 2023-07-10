@@ -1,3 +1,4 @@
+# Deployment delivers WordPress pods onto EC2 machines located in EKS private subnet.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
